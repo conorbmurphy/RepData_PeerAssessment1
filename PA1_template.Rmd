@@ -8,11 +8,21 @@ output:
 
 ## Loading and preprocessing the data
 
-
+```{r}
+unzip("activity.zip")
+act2 <- read.csv("activity.csv")
+sum(is.na(act))
+head(act)
+summary(act)
+act$date <- strptime(act$date, format = "%Y-%m-%d")
+```
 
 ## What is mean total number of steps taken per day?
 
-
+```{r}
+act2 <- na.omit(act)
+totSteps <- tapply(act2$steps, as.numeric(act2$date), sum)  # BROKEN HERE
+```
 
 ## What is the average daily activity pattern?
 
