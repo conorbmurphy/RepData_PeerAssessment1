@@ -10,10 +10,7 @@ output:
 
 ```{r}
 unzip("activity.zip")
-act2 <- read.csv("activity.csv")
-sum(is.na(act))
-head(act)
-summary(act)
+act <- read.csv("activity.csv")
 act$date <- strptime(act$date, format = "%Y-%m-%d")
 ```
 
@@ -21,15 +18,59 @@ act$date <- strptime(act$date, format = "%Y-%m-%d")
 
 ```{r}
 act2 <- na.omit(act)
-totSteps <- tapply(act2$steps, as.numeric(act2$date), sum)  # BROKEN HERE
+hist(tapply(act2$steps, as.numeric(act2$date), sum), main = "Total Steps per Day", 
+     col = "purple", xlab = "Number of Steps")
+meanSteps <- tapply(act2$steps, as.numeric(act2$date), mean)
+medianSteps <- tapply(act2$steps, as.numeric(act2$date), median) # THIS IS BROKEN
+meanMedian <- cbind(rownames(table(as.character(act2$date))), meanSteps, medianSteps)
+meanMedian
 ```
 
 ## What is the average daily activity pattern?
 
-
+```{r}
+meanInterval <- cbind(rownames(table(act2$interval)), tapply(act2$steps, 
+        act2$interval, mean))
+plot(meanInterval[,1], meanInterval[,2], type = "l", col = "blue", xlab = 
+        "Interval", ylab = "Average Steps per Day", 
+        main = "Average Steps by Time of Day")
+maxSteps <- c(subset(meanInterval, meanInterval[,2] ==
+        max(as.numeric(meanInterval[,2])), select = 
+        meanInterval[,1]:meanInterval[,2]), max(as.numeric(meanInterval[,2])))
+maxSteps
+```
 
 ## Imputing missing values
 
+```{r}
+sum(is.na(act))
+act3 <- act
+for (i in which(is.na(act3))){
+        act3[i,1] <- meanSteps[((i-1)%%288)+1]
+}
+hist(tapply(act3$steps, as.numeric(act3$date), sum), col = "red", 
+     main = "Sum of Steps per Day", xlab = "Steps Taken")
+meanSteps2 <- tapply(act3$steps, as.numeric(act3$date), mean)
+medianSteps2 <- tapply(act3$steps, as.numeric(act3$date), median) # THIS IS BROKEN
+meanMedian2 <- cbind(rownames(table(as.character(act3$date))), meanSteps2, medianSteps2)
+meanMedian2
+mean(act3$steps, na.rm = TRUE)
+median(act3$steps, na.rm = TRUE) # THIS IS BROKEN
+mean(act3$steps, na.rm = TRUE) - mean(act$steps, na.rm = TRUE)
+median(act3$steps, na.rm = TRUE) - median(act$steps, na.rm = TRUE)
+```
 
+The mean and median from the original dataset and that with averaged NA values
+is identical.  Adding mean NA values did, however, increase the daily sum of
+steps taken.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```{r}
+require(ggplot2)
+weekend <- c("Saturday", "Sunday")
+act[, "weekday"] <- ifelse(weekdays(act$date) == weekend, "weekend", "weekday")
+avg <- aggregate(steps ~ interval + weekday, data = act, mean)
+ggplot(avg, aes(interval, steps)) +
+        geom_line() + facet_grid(weekday ~.)
+```
