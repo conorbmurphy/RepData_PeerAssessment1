@@ -21,7 +21,8 @@ act2 <- na.omit(act)
 hist(tapply(act2$steps, as.numeric(act2$date), sum), main = "Total Steps per Day", 
      col = "purple", xlab = "Number of Steps")
 meanSteps <- tapply(act2$steps, as.numeric(act2$date), mean)
-medianSteps <- tapply(act2$steps, as.numeric(act2$date), median) # THIS IS BROKEN
+medianSteps <- tapply(act2$steps[act2>0], as.numeric(act2$date[act2>0]), 
+        median, na.rm = TRUE)
 meanMedian <- cbind(rownames(table(as.character(act2$date))), meanSteps, medianSteps)
 meanMedian
 ```
@@ -51,13 +52,15 @@ for (i in which(is.na(act3))){
 hist(tapply(act3$steps, as.numeric(act3$date), sum), col = "red", 
      main = "Sum of Steps per Day", xlab = "Steps Taken")
 meanSteps2 <- tapply(act3$steps, as.numeric(act3$date), mean)
-medianSteps2 <- tapply(act3$steps, as.numeric(act3$date), median) # THIS IS BROKEN
-meanMedian2 <- cbind(rownames(table(as.character(act3$date))), meanSteps2, medianSteps2)
+medianSteps2 <- tapply(act3$steps[act2>0], as.numeric(act3$date[act2>0]), 
+        median, na.rm = TRUE) # THIS IS BROKEN
+meanMedian2 <- cbind(rownames(table(as.character(act3$date))), meanSteps2, 
+        medianSteps2)
 meanMedian2
 mean(act3$steps, na.rm = TRUE)
 median(act3$steps, na.rm = TRUE) # THIS IS BROKEN
 mean(act3$steps, na.rm = TRUE) - mean(act$steps, na.rm = TRUE)
-median(act3$steps, na.rm = TRUE) - median(act$steps, na.rm = TRUE)
+median(act3$steps[act2>0], na.rm = TRUE) - median(act$steps[act2>0], na.rm = TRUE)
 ```
 
 The mean and median from the original dataset and that with averaged NA values
