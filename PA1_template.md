@@ -125,6 +125,8 @@ maxSteps
 
 ## Imputing missing values
 
+This missing values will be replaced by the mean steps in the code below.
+
 
 ```r
 sum(is.na(act))
